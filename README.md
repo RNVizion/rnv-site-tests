@@ -6,7 +6,7 @@ Browser tests for [rnvizion.dev](https://rnvizion.dev), written in Python with S
 
 | Check | How |
 |---|---|
-| Every page title carries the brand | Selenium reads the rendered title |
+| The home page’s title is what the site decided | Selenium reads the rendered title |
 | The navigation is visible and every link is labeled | Selenium finds the nav links, checks each has text or an `aria-label` |
 | The contact card offers a phone link and an email link | Selenium looks for `tel:` and `mailto:` links. The values belong to the brand manifest, so the test never copies them |
 | No internal link is broken | Selenium walks the links a visitor would see; `requests` reads each one's HTTP status, which a browser doesn't expose |
