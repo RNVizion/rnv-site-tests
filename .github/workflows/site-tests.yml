@@ -1,0 +1,48 @@
+name: site tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 13 * * 1" # Mondays 13:17 UTC
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: "Site to test"
+        default: "https://rnvizion.dev"
+      expect_title:
+        description: "Sabotage run: a title the site does NOT have (leave blank for a normal run)"
+        default: ""
+
+# No secrets live in this repository and the token is read-only, so actions are
+# pinned to major versions. Pin them to full commit SHAs the day a secret is added.
+permissions:
+  contents: read
+
+jobs:
+  selenium:
+    runs-on: ubuntu-24.04 # pinned: ubuntu-latest moves to a new image on its own schedule
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install
+        run: pip install -r requirements.txt
+      - name: Show the browser under test
+        run: google-chrome --version
+      - name: Run the suite
+        env:
+          SITE_URL: ${{ inputs.site_url || 'https://rnvizion.dev' }}
+          EXPECT_TITLE: ${{ inputs.expect_title }}
+        run: python -m pytest -v
+      - name: Upload screenshots and page source from failed tests
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-evidence
+          path: artifacts/
+          if-no-files-found: ignore
