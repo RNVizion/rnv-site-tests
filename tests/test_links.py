@@ -23,6 +23,15 @@ def test_positive_control_a_missing_page_reads_404(base_url):
     assert status_of(base_url + site_facts.MISSING_PATH) == 404
 
 
+@pytest.mark.xfail(
+    strict=True,
+    reason="No favicon yet (Brand Book §9, OPEN). When this passes, strict xfail turns the run red: "
+    "remove this marker and the favicon entry in site_facts.ALLOWED_CONSOLE_ERRORS.",
+)
+def test_site_serves_a_favicon(base_url):
+    assert status_of(base_url + "/favicon.ico") == 200
+
+
 def test_every_internal_link_resolves(driver, base_url):
     found: list[str] = []
     for path in site_facts.NAMED_PAGES:

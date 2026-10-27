@@ -7,7 +7,7 @@ from pages import CardPage, HomePage, Page
 pytestmark = pytest.mark.browser
 
 
-def test_home_title_carries_the_brand(driver, base_url):
+def test_home_title_matches_site_facts(driver, base_url):
     home = HomePage(driver, base_url).open()
     assert site_facts.EXPECT_TITLE in home.title, f"title was {home.title!r}"
 
