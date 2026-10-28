@@ -10,6 +10,7 @@ import re
 
 import pytest
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 
 import site_facts
 
@@ -41,7 +42,9 @@ def _options() -> webdriver.ChromeOptions:
 
 
 def _start(opts):
-    driver = webdriver.Chrome(options=opts)  # Selenium Manager finds a matching driver
+    # Selenium Manager finds a matching driver; CHROMEDRIVER names one by hand where it can't.
+    service = Service(os.environ["CHROMEDRIVER"]) if os.environ.get("CHROMEDRIVER") else None
+    driver = webdriver.Chrome(options=opts, service=service)
     driver.set_page_load_timeout(30)
     return driver
 

@@ -37,5 +37,21 @@ ALLOWED_CONSOLE_ERRORS: list[str] = [
     "/favicon.ico - Failed to load resource",
 ]
 
+# The mark: the RNVizion logo in the nav. Its face and weight are not written here;
+# test_mark_font.py reads them from rnv-brand's TYPE["mark"].
+MARK_SELECTOR = "nav a.logo"
+# /aiii/ is where a weaker check passed with no fonts loaded (2026-09-28). The nav
+# is copied inline into every page, so the home page is checked too.
+MARK_PAGES = ["/", "/aiii/"]
+
+# Where the site serves its own font files. The font sabotage blocks this path,
+# and a test proves every mark page still requests it, so the sabotage can never
+# go stale the way the Checkly version's did (it blocked Google Fonts after the
+# site had stopped using them).
+FONT_FILES = "/assets/webfonts/"
+
+# The font sabotage switch, set by the workflow's manual run: "1" blocks FONT_FILES.
+BLOCK_FONTS = os.environ.get("BLOCK_FONTS") == "1"
+
 # A phone-sized viewport for the layout tests (an iPhone 15's CSS pixels).
 PHONE = {"width": 390, "height": 844, "pixelRatio": 3.0}

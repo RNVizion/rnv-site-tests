@@ -14,6 +14,10 @@ on:
       expect_title:
         description: "Sabotage run: a title the site does NOT have (leave blank for a normal run)"
         default: ""
+      block_fonts:
+        description: "Sabotage run: block the site's own font folder (the mark check must fail at step 2)"
+        type: boolean
+        default: false
 
 # No secrets live in this repository and the token is read-only, so actions are
 # pinned to major versions. Pin them to full commit SHAs the day a secret is added.
@@ -38,6 +42,7 @@ jobs:
         env:
           SITE_URL: ${{ inputs.site_url || 'https://rnvizion.dev' }}
           EXPECT_TITLE: ${{ inputs.expect_title }}
+          BLOCK_FONTS: ${{ inputs.block_fonts && '1' || '' }}
         run: python -m pytest -v
       - name: Upload screenshots and page source from failed tests
         if: failure()

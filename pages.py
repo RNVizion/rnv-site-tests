@@ -86,6 +86,47 @@ class Page:
         ]
 
 
+    # --- fonts -----------------------------------------------------------------
+
+    def block_urls(self, patterns: list[str]):
+        """Make Chrome refuse these URL patterns from now on (Chrome DevTools Protocol)."""
+        self.driver.execute_cdp_cmd("Network.enable", {})
+        self.driver.execute_cdp_cmd("Network.setBlockedURLs", {"urls": patterns})
+        return self
+
+    def stylesheet_hrefs(self) -> list[str]:
+        return self.driver.execute_script(
+            "return [...document.querySelectorAll('link[rel=stylesheet]')].map(l => l.href)"
+        )
+
+    def computed_font(self, selector: str) -> dict:
+        """The first family the element's CSS asks for, and its weight."""
+        return self.driver.execute_script(
+            """const s = getComputedStyle(document.querySelector(arguments[0]));
+               const first = s.fontFamily.split(',')[0].trim().replace(/^["']|["']$/g, '');
+               return {family: first, weight: s.fontWeight, declared: s.fontFamily};""",
+            selector,
+        )
+
+    def face_statuses(self, family: str, weight: str) -> list[str]:
+        """Load status of every declared face with this family and weight."""
+        return self.driver.execute_script(
+            """return [...document.fonts]
+                 .filter(f => f.family.replace(/["']/g, '') === arguments[0] && f.weight === arguments[1])
+                 .map(f => f.status);""",
+            family, weight,
+        )
+
+    def painted_fonts(self, selector: str) -> list[dict]:
+        """The fonts Chrome actually drew the element's text with, from the DevTools Protocol."""
+        cdp = self.driver.execute_cdp_cmd
+        cdp("DOM.enable", {})
+        cdp("CSS.enable", {})
+        root = cdp("DOM.getDocument", {})["root"]["nodeId"]
+        node = cdp("DOM.querySelector", {"nodeId": root, "selector": selector})["nodeId"]
+        return cdp("CSS.getPlatformFontsForNode", {"nodeId": node})["fonts"]
+
+
 class HomePage(Page):
     path = "/"
 
